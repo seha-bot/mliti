@@ -14,34 +14,36 @@ struct Table {
     std::vector<bool> results;
 
     Table(Node *tree) {
-        [this](this auto&& self, Node const& tree) -> void {
+        // TODO: please please make the ast descent in a decent way and not this hacky bullshit
+        [](this auto&& self, std::set<char>& terms, Node const& tree) -> void {
             return std::visit(overloads{
                                   [&](And const& node) {
-                                      self(*node.lhs);
-                                      self(*node.rhs);
+                                      self(terms, *node.lhs);
+                                      self(terms, *node.rhs);
                                   },
                                   [&](Or const& node) {
-                                      self(*node.lhs);
-                                      self(*node.rhs);
+                                      self(terms, *node.lhs);
+                                      self(terms, *node.rhs);
                                   },
-                                  [&](Not const& node) { self(*node.expr); },
+                                  [&](Not const& node) { self(terms, *node.expr); },
                                   [&](Var const& node) { terms.insert(node.name); },
                               },
                               tree);
-        }(*tree);
+        }(terms, *tree);
 
-        for (unsigned i = 0; i != 1 << terms.size(); ++i) {
+        // TODO: make a generator which returns an iterable of iterable bits
+        for (unsigned i = 0; i != 1u << terms.size(); ++i) {
             auto vals = bits(i, std::ssize(terms));
-            results.push_back([this, &vals](this auto&& self, Node const& tree) -> bool {
+            results.push_back([](this auto&& self, auto& vals, std::set<char>& terms, Node const& tree) -> bool {
                 return std::visit(
                     overloads{
-                        [&](And const& node) { return self(*node.lhs) && self(*node.rhs); },
-                        [&](Or const& node) { return self(*node.lhs) || self(*node.rhs); },
-                        [&](Not const& node) { return !self(*node.expr); },
+                        [&](And const& node) { return self(vals, terms, *node.lhs) && self(vals, terms, *node.rhs); },
+                        [&](Or const& node) { return self(vals, terms, *node.lhs) || self(vals, terms, *node.rhs); },
+                        [&](Not const& node) { return !self(vals, terms, *node.expr); },
                         [&](Var const& node) -> bool { return vals[distance(terms.begin(), terms.find(node.name))]; },
                     },
                     tree);
-            }(*tree));
+            }(vals, terms, *tree));
         }
     }
 

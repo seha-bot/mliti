@@ -20,4 +20,7 @@ TEST_CASE("Simplifications", "[simplify]") {
     REQUIRE(simplify("ABC or nAC or nBC") == "C");
     REQUIRE(simplify("nAB or nBC or nAC") == "nAB or nBC");
     REQUIRE(simplify("nAC or nAB or BC") == "nAC or nAB or BC");
+    REQUIRE(simplify("n(AB(A or nBC) or n(n(AC) and n(BC)))") == "nAnB or nAnC or nBnC");
+    REQUIRE(simplify("A or nA") == "t");
+    REQUIRE(simplify("AnA") == "f");
 }

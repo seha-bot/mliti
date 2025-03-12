@@ -108,6 +108,10 @@ struct Simplifier {
     }
 
     std::string format() {
+        if (grid.empty()) {
+            return "f";
+        }
+
         std::string str;
         for (std::size_t i = 0; i < grid[0].size(); i++) {
             if (grid[0][i] == 1) {
@@ -127,6 +131,10 @@ struct Simplifier {
                     str.push_back(char(i + 'A'));
                 }
             }
+        }
+
+        if (str.empty()) {
+            return "t";
         }
         return str;
     }
