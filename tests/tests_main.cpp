@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -8,7 +9,7 @@
 std::string simplify(std::string_view expr) {
     auto tree = parsing::parse(expr);
     if (!tree) {
-        throw std::runtime_error("parsing failed");  // TODO include
+        throw std::runtime_error("parsing failed");
     }
     Table table{tree.get()};
     return simplify_table(table);
@@ -23,4 +24,5 @@ TEST_CASE("Simplifications", "[simplify]") {
     REQUIRE(simplify("n(AB(A or nBC) or n(n(AC) and n(BC)))") == "nAnB or nAnC or nBnC");
     REQUIRE(simplify("A or nA") == "t");
     REQUIRE(simplify("AnA") == "f");
+    REQUIRE(simplify("A or B or C") == "A or B or C");
 }
