@@ -115,67 +115,7 @@ int main(int argc, char *argv[]) {
         std::println("{}", fmt::format_prefix(*tree));
     }
 
-    std::println("{}", simplify_table(table));
+    Simplifier simpl{table};
+    simpl.run();
+    std::println("{}", simpl.format());
 }
-
-/*
-
-axioms:
-
--------------------
-
-1. idk how to put it into words cuz idk if it's more general than this
-
-this doesn't work:
-0-1
-01-
--11
-
-this works:
-0-0
-01-
--11
-
-to
-
-0-0
--11
-
--------------------
-
-2. if there are two rows with 1 diff and one or more missing links
-
-0--
-101
-
-to
-
-0--
--01
-
--------------------
-
-3. two rows with states which differ by only one value get those values removed
-
-001
-000
-
-to
-
-00-
-00-
-
--------------------
-
-4. for 2 identical rows, 1 can be removed
-
-00-
-00-
-
-to
-
-00-
-
--------------------
-
-*/

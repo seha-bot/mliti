@@ -13,7 +13,15 @@ struct Table {
     std::set<char> terms;
     std::vector<bool> results;
 
+    // TODO: make the manual mode more controlled
+    Table() {}
+
     Table(Node *tree) {
+        setup_terms(tree);
+        retrace(tree);
+    }
+
+    void setup_terms(Node *tree) {
         // TODO: please please make the ast descent in a decent way and not this hacky bullshit
         [](this auto&& self, std::set<char>& terms, Node const& tree) -> void {
             return std::visit(overloads{
@@ -30,7 +38,9 @@ struct Table {
                               },
                               tree);
         }(terms, *tree);
+    }
 
+    void retrace(Node *tree) {
         // TODO: make a generator which returns an iterable of iterable bits
         for (unsigned i = 0; i != 1u << terms.size(); ++i) {
             auto vals = bits(i, std::ssize(terms));
@@ -60,24 +70,12 @@ struct Table {
         }
     }
 
-    void print_results() {
+    std::string fmt_results() {
+        std::string str;
         for (int result : results) {
-            std::print("{}", result);
+            str.append(std::to_string(result));
         }
-        std::println();
-    }
-
-    void ones() {
-        for (char term : terms) {
-            std::print("{} ", term);
-        }
-        std::println("| R");
-        for (unsigned i = 0; i < results.size(); ++i) {
-            for (int bit : bits(i, std::ssize(terms))) {
-                std::print("{} ", bit);
-            }
-            std::println("| {}", results[i] ? 1 : 0);
-        }
+        return str;
     }
 };
 
